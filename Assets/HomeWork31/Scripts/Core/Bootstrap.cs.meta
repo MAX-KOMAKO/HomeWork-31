@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 953191e6112004b2aae3500fd200a952
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _levelConfig: {instanceID: 0}
+  - _heroConfig: {instanceID: 0}
+  - _enemyConfig: {instanceID: 0}
+  - _heroPrefab: {instanceID: 0}
+  - _enemyPrefab: {instanceID: 0}
+  - _bulletPrefab: {instanceID: 0}
+  - _heroSpawnPoint: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

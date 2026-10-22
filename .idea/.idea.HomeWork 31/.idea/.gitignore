@@ -1,0 +1,8 @@
+# Игнорируемые файлы по умолчанию
+/shelf/
+/workspace.xml
+# Игнорируемые файлы Rider
+/modules.xml
+/projectSettingsUpdater.xml
+/contentModel.xml
+/.idea.HomeWork 31.iml
