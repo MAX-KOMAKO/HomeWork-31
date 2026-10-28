@@ -1,18 +1,18 @@
 using System;
 using UnityEngine;
 
-public class Hero : IDamageable, IDisposable
+public class Hero : MonoBehaviour, IDamageable, IDisposable
 {
     public event Action<Hero> Died;
 
     private Health _health;
     private Mover _mover;
-    private Shooter _shooter;
+    private IShooter _shooter;
 
     public bool IsAlive => _health.IsAlive;
     public Health Health => _health;
 
-    public Hero(Health health, Mover mover, Shooter shooter)
+    public void Initialize(Health health, Mover mover, IShooter shooter)
     {
         _health = health ?? throw new ArgumentNullException(nameof(health));
         _mover = mover ?? throw new ArgumentNullException(nameof(mover));
@@ -26,13 +26,13 @@ public class Hero : IDamageable, IDisposable
         _health.TakeDamage(damage);
     }
 
-    public void Move(Transform transform, Vector3 direction, float deltaTime)
+    public void Move(Vector3 direction, float deltaTime)
     {
         if (IsAlive == false) return;
         _mover.Move(transform, direction, deltaTime);
     }
 
-    public void Shoot(Transform transform, Vector3 aimDirection, Action<Vector3, Vector3> onShoot)
+    public void Shoot(Vector3 aimDirection, Action<Vector3, Vector3> onShoot)
     {
         if (IsAlive == false) return;
         _shooter.Shoot(transform.position, aimDirection, onShoot);
@@ -41,6 +41,14 @@ public class Hero : IDamageable, IDisposable
     public void Dispose()
     {
         _health.Died -= OnDied;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Enemy enemy))
+        {
+            TakeDamage(enemy.Damage);
+        }
     }
 
     private void OnDied()

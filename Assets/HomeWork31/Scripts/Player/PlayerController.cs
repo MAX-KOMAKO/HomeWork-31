@@ -3,21 +3,22 @@ using UnityEngine;
 public class PlayerController : Controller
 {
     private const float MinDirectionSqrMagnitude = 0.01f;
+    private const float SpawnOffset = 0.7f;
 
-    private Entity<Hero> _heroEntity;
+    private Hero _hero;
     private IInput _inputProvider;
     private BulletsFactory _bulletFactory;
     private ControllersUpdateService _updateService;
     private HeroConfig _heroConfiguration;
 
     public PlayerController(
-        Entity<Hero> heroEntity, 
+        Hero hero, 
         IInput inputProvider, 
         BulletsFactory bulletFactory, 
         ControllersUpdateService updateService, 
         HeroConfig heroConfiguration)
     {
-        _heroEntity = heroEntity;
+        _hero = hero;
         _inputProvider = inputProvider;
         _bulletFactory = bulletFactory;
         _updateService = updateService;
@@ -26,25 +27,27 @@ public class PlayerController : Controller
 
     protected override void UpdateLogic(float deltaTime)
     {
-        if (_heroEntity.Logic.IsAlive == false) return;
+        if (_hero.IsAlive == false) return;
 
         Vector3 moveDirection = _inputProvider.GetMoveDirection();
         if (moveDirection.sqrMagnitude > MinDirectionSqrMagnitude)
         {
-            _heroEntity.Logic.Move(_heroEntity.Transform, moveDirection, deltaTime);
-            _heroEntity.Transform.forward = moveDirection.normalized;
+            _hero.Move(moveDirection, deltaTime);
+            _hero.transform.forward = moveDirection.normalized;
         }
 
         if (_inputProvider.IsShootPressed())
         {
-            _heroEntity.Logic.Shoot(_heroEntity.Transform, _heroEntity.Transform.forward, OnShoot);
+            _hero.Shoot(_hero.transform.forward, OnShoot);
         }
     }
 
     private void OnShoot(Vector3 position, Vector3 direction)
     {
-        Entity<Bullet> bullet = _bulletFactory.CreateBullet(
-            position, 
+        Vector3 spawnPosition = position + direction * SpawnOffset;
+        
+        Bullet bullet = _bulletFactory.CreateBullet(
+            spawnPosition, 
             direction, 
             _heroConfiguration.BulletSpeed, 
             _heroConfiguration.BulletDamage);

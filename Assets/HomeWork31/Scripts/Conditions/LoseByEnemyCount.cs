@@ -5,10 +5,10 @@ public class LoseByEnemyCount : IGameCondition
     public event Action Completed;
 
     private int _maxEnemiesAllowed;
-    private ReactiveList<Entity<Enemy>> _enemiesList;
+    private ReactiveList<Enemy> _enemiesList;
     private bool _isEnabled;
 
-    public LoseByEnemyCount(int maxEnemiesAllowed, ReactiveList<Entity<Enemy>> enemiesList)
+    public LoseByEnemyCount(int maxEnemiesAllowed, ReactiveList<Enemy> enemiesList)
     {
         if (maxEnemiesAllowed <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxEnemiesAllowed), "Лимит врагов должен быть больше нуля.");
@@ -34,7 +34,7 @@ public class LoseByEnemyCount : IGameCondition
 
     public void Update(float deltaTime) { }
 
-    private void OnEnemyChanged(Entity<Enemy> enemy) => CheckCondition();
+    private void OnEnemyChanged(Enemy enemy) => CheckCondition();
 
     private void CheckCondition()
     {

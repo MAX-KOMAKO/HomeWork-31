@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4046197244562899425}
   - component: {fileID: 7044546045814283364}
   - component: {fileID: -230587917388082795}
-  - component: {fileID: -4941822544750277658}
+  - component: {fileID: 9069352464724779665}
   m_Layer: 0
   m_Name: HeroPrefab
   m_TagString: Untagged
@@ -134,7 +134,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-4941822544750277658
+--- !u!114 &9069352464724779665
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,6 +143,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7346346516518167755}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5be79e62c32f440c68ed656eb008bafe, type: 3}
+  m_Script: {fileID: 11500000, guid: a5529d00982bd4cca855c9b65ad033a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

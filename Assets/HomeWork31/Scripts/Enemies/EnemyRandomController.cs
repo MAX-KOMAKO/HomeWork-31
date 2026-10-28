@@ -7,26 +7,26 @@ public class EnemyRandomController : Controller
     private const float RandomDirectionMin = -1f;
     private const float RandomDirectionMax = 1f;
 
-    private Entity<Enemy> _enemyEntity;
+    private Enemy _enemy;
     private ControllersUpdateService _updateService;
     private float _directionChangeInterval;
     
     private float _currentTimer;
     private Vector3 _currentDirection;
 
-    public EnemyRandomController(Entity<Enemy> enemyEntity, ControllersUpdateService updateService, float directionChangeInterval)
+    public EnemyRandomController(Enemy enemy, ControllersUpdateService updateService, float directionChangeInterval)
     {
-        _enemyEntity = enemyEntity;
+        _enemy = enemy;
         _updateService = updateService;
         _directionChangeInterval = directionChangeInterval;
         
-        _enemyEntity.Logic.Died += OnEnemyDied;
+        _enemy.Died += OnEnemyDied;
         ChooseNewDirection();
     }
 
     protected override void UpdateLogic(float deltaTime)
     {
-        if (_enemyEntity.Logic.IsAlive == false || _enemyEntity.Transform == null) return;
+        if (_enemy == null || _enemy.IsAlive == false) return;
 
         _currentTimer -= deltaTime;
         if (_currentTimer <= 0)
@@ -34,7 +34,7 @@ public class EnemyRandomController : Controller
             ChooseNewDirection();
         }
 
-        _enemyEntity.Logic.Move(_enemyEntity.Transform, _currentDirection, deltaTime);
+        _enemy.Move(_currentDirection, deltaTime);
     }
 
     private void ChooseNewDirection()
@@ -45,7 +45,7 @@ public class EnemyRandomController : Controller
 
         if (_currentDirection.sqrMagnitude > MinDirectionSqrMagnitude)
         {
-            _enemyEntity.Transform.forward = _currentDirection;
+            _enemy.transform.forward = _currentDirection;
         }
 
         _currentTimer = _directionChangeInterval;
@@ -53,14 +53,14 @@ public class EnemyRandomController : Controller
 
     private void OnEnemyDied(Enemy enemy)
     {
-        _enemyEntity.Logic.Died -= OnEnemyDied;
-        _enemyEntity.Logic.Dispose();
+        _enemy.Died -= OnEnemyDied;
+        _enemy.Dispose();
         
         _updateService.Remove(this);
         
-        if (_enemyEntity.Transform != null)
+        if (_enemy != null)
         {
-            Object.Destroy(_enemyEntity.Transform.gameObject);
+            Object.Destroy(_enemy.gameObject);
         }
     }
 }

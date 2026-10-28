@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,8 +26,8 @@ public class Bootstrap : MonoBehaviour
     private BulletsFactory _bulletFactory;
     private EnemiesSpawner _enemiesSpawner;
     private GameMode _gameMode;
-    private ReactiveList<Entity<Enemy>> _enemiesList;
-    private Entity<Hero> _heroEntity;
+    private ReactiveList<Enemy> _enemiesList;
+    private Hero _hero;
 
     private void Awake()
     {
@@ -36,7 +37,7 @@ public class Bootstrap : MonoBehaviour
         _heroFactory = new HeroFactory();
         _enemyFactory = new EnemyFactory();
         _bulletFactory = new BulletsFactory(_bulletPrefab);
-        _enemiesList = new ReactiveList<Entity<Enemy>>();
+        _enemiesList = new ReactiveList<Enemy>();
 
         InitializeGame();
     }
@@ -62,24 +63,25 @@ public class Bootstrap : MonoBehaviour
             _gameMode.Defeat -= OnGameDefeat;
         }
 
-        _heroEntity?.Logic.Dispose();
+        _hero?.Dispose();
         _updateService?.Clear();
     }
 
     private void InitializeGame()
     {
-        _heroEntity = _heroFactory.CreateHero(_heroConfiguration, _heroPrefab, _heroSpawnPoint.position);
+        _hero = _heroFactory.CreateHero(_heroConfiguration, _heroPrefab, _heroSpawnPoint.position);
         
         UnityInput input = new UnityInput();
-        PlayerController playerController = new PlayerController(_heroEntity, input, _bulletFactory, _updateService, _heroConfiguration);
+        PlayerController playerController = new PlayerController(_hero, input, _bulletFactory, _updateService, _heroConfiguration);
         _updateService.Add(playerController);
 
         _enemiesSpawner = new EnemiesSpawner(_enemyFactory, _enemyConfiguration, _enemyPrefab, _enemySpawnPoints, _levelConfiguration.SpawnInterval);
         _enemiesSpawner.Spawned += OnEnemySpawned;
         _updateService.Add(_enemiesSpawner);
 
-        IGameCondition winCondition = CreateWinCondition();
-        IGameCondition loseCondition = CreateLoseCondition(_heroEntity.Logic);
+        GameConditionsFactory conditionsFactory = new GameConditionsFactory();
+        IGameCondition winCondition = conditionsFactory.CreateWinCondition(_levelConfiguration, _enemiesList);
+        IGameCondition loseCondition = conditionsFactory.CreateLoseCondition(_levelConfiguration, _hero, _enemiesList);
 
         _gameMode = new GameMode(winCondition, loseCondition);
         _gameMode.Win += OnGameWin;
@@ -88,58 +90,20 @@ public class Bootstrap : MonoBehaviour
         _updateService.Add(_gameMode);
     }
 
-    private IGameCondition CreateWinCondition()
-    {
-        switch (_levelConfiguration.WinType)
-        {
-            case WinConditionType.SurviveTime:
-                return new WinByTime(_levelConfiguration.TimeToWin);
-            
-            case WinConditionType.KillCount:
-                return new WinByKills(_levelConfiguration.KillsToWin, _enemiesList);
-            
-            default:
-                throw new System.ArgumentException($"Неизвестный тип условия победы: {_levelConfiguration.WinType}");
-        }
-    }
-
-    private IGameCondition CreateLoseCondition(Hero hero)
-    {
-        switch (_levelConfiguration.LoseType)
-        {
-            case LoseConditionType.PlayerDied:
-                return new LoseByDeath(hero);
-            
-            case LoseConditionType.EnemyCountExceeded:
-                return new LoseByEnemyCount(_levelConfiguration.MaxEnemiesAllowed, _enemiesList);
-            
-            default:
-                throw new System.ArgumentException($"Неизвестный тип условия поражения: {_levelConfiguration.LoseType}");
-        }
-    }
-
-    private void OnEnemySpawned(Entity<Enemy> enemy)
+    private void OnEnemySpawned(Enemy enemy)
     {
         _enemiesList.Add(enemy);
         
         EnemyRandomController enemyController = new EnemyRandomController(enemy, _updateService, _enemyConfiguration.DirectionChangeInterval);
         _updateService.Add(enemyController);
 
-        enemy.Logic.Died += OnEnemyDied;
+        enemy.Died += OnEnemyDied;
     }
 
     private void OnEnemyDied(Enemy enemy)
     {
         enemy.Died -= OnEnemyDied;
-
-        for (int i = 0; i < _enemiesList.Count; i++)
-        {
-            if (_enemiesList.Elements[i].Logic == enemy)
-            {
-                _enemiesList.Remove(_enemiesList.Elements[i]);
-                break;
-            }
-        }
+        _enemiesList.Remove(enemy); 
     }
 
     private void OnGameWin()
@@ -162,13 +126,13 @@ public class Bootstrap : MonoBehaviour
 
     private void ValidateDependencies()
     {
-        if (_levelConfiguration == null) Debug.LogError("LevelConfig не назначен!");
-        if (_heroConfiguration == null) Debug.LogError("HeroConfig не назначен!");
-        if (_enemyConfiguration == null) Debug.LogError("EnemyConfig не назначен!");
-        if (_heroPrefab == null) Debug.LogError("HeroPrefab не назначен!");
-        if (_enemyPrefab == null) Debug.LogError("EnemyPrefab не назначен!");
-        if (_bulletPrefab == null) Debug.LogError("BulletPrefab не назначен!");
-        if (_heroSpawnPoint == null) Debug.LogError("HeroSpawnPoint не назначен!");
-        if (_enemySpawnPoints == null || _enemySpawnPoints.Length == 0) Debug.LogError("EnemySpawnPoints пуст!");
+        if (_levelConfiguration == null) throw new ArgumentNullException(nameof(_levelConfiguration));
+        if (_heroConfiguration == null) throw new ArgumentNullException(nameof(_heroConfiguration));
+        if (_enemyConfiguration == null) throw new ArgumentNullException(nameof(_enemyConfiguration));
+        if (_heroPrefab == null) throw new ArgumentNullException(nameof(_heroPrefab));
+        if (_enemyPrefab == null) throw new ArgumentNullException(nameof(_enemyPrefab));
+        if (_bulletPrefab == null) throw new ArgumentNullException(nameof(_bulletPrefab));
+        if (_heroSpawnPoint == null) throw new ArgumentNullException(nameof(_heroSpawnPoint));
+        if (_enemySpawnPoints == null || _enemySpawnPoints.Length == 0) throw new ArgumentNullException(nameof(_enemySpawnPoints));
     }
 }

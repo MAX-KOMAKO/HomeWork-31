@@ -9,18 +9,16 @@ public class BulletsFactory
         _bulletPrefab = bulletPrefab ?? throw new System.ArgumentNullException(nameof(bulletPrefab));
     }
 
-    public Entity<Bullet> CreateBullet(Vector3 position, Vector3 direction, float speed, int damage)
+    public Bullet CreateBullet(Vector3 position, Vector3 direction, float speed, int damage)
     {
         GameObject instance = Object.Instantiate(_bulletPrefab, position, Quaternion.identity);
         
+        if (instance.TryGetComponent(out Bullet bullet) == false)
+            throw new MissingComponentException($"На префабе пули отсутствует {nameof(Bullet)}");
+
         Mover mover = new Mover(speed);
-        Bullet bullet = new Bullet(mover, direction, damage);
+        bullet.Initialize(mover, direction, damage);
 
-        if (instance.TryGetComponent(out BulletView view) == false)
-            throw new MissingComponentException($"На префабе пули отсутствует {nameof(BulletView)}");
-
-        view.Initialize(bullet, damage);
-
-        return new Entity<Bullet>(bullet, instance.transform);
+        return bullet;
     }
 }

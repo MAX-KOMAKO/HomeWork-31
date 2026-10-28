@@ -7,9 +7,9 @@ public class WinByKills : IGameCondition
     private int _targetKills;
     private int _currentKills;
     private bool _isEnabled;
-    private ReactiveList<Entity<Enemy>> _enemiesList;
+    private ReactiveList<Enemy> _enemiesList;
 
-    public WinByKills(int targetKills, ReactiveList<Entity<Enemy>> enemiesList)
+    public WinByKills(int targetKills, ReactiveList<Enemy> enemiesList)
     {
         if (targetKills <= 0)
             throw new ArgumentOutOfRangeException(nameof(targetKills), "Целевое количество убийств должно быть больше нуля.");
@@ -33,11 +33,11 @@ public class WinByKills : IGameCondition
 
     public void Update(float deltaTime) { }
 
-    private void OnEnemyRemoved(Entity<Enemy> enemy)
+    private void OnEnemyRemoved(Enemy enemy)
     {
         if (_isEnabled == false) return;
         
-        if (enemy.Logic.IsAlive == false)
+        if (enemy.IsAlive == false)
         {
             _currentKills++;
             CheckCondition();

@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 
 public class EnemiesSpawner : Controller
 {
-    public event Action<Entity<Enemy>> Spawned;
+    public event Action<Enemy> Spawned;
 
     private EnemyFactory _enemyFactory;
     private EnemyConfig _enemyConfiguration;
@@ -47,7 +47,7 @@ public class EnemiesSpawner : Controller
         if (_spawnPoints.Length == 0) return;
         
         Transform point = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
-        Entity<Enemy> enemy = _enemyFactory.CreateEnemy(_enemyConfiguration, _enemyPrefab, point.position);
+        Enemy enemy = _enemyFactory.CreateEnemy(_enemyConfiguration, _enemyPrefab, point.position);
         
         Spawned?.Invoke(enemy);
     }

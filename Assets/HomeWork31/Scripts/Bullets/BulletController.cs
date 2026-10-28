@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class BulletController : Controller
 {
-    private Entity<Bullet> _bulletEntity;
+    private Bullet _bullet;
     private ControllersUpdateService _updateService;
     private float _lifeTime;
     private float _currentLifeTime;
 
-    public BulletController(Entity<Bullet> bulletEntity, ControllersUpdateService updateService, float lifeTime)
+    public BulletController(Bullet bullet, ControllersUpdateService updateService, float lifeTime)
     {
-        _bulletEntity = bulletEntity ?? throw new System.ArgumentNullException(nameof(bulletEntity));
+        _bullet = bullet ?? throw new System.ArgumentNullException(nameof(bullet));
         _updateService = updateService ?? throw new System.ArgumentNullException(nameof(updateService));
         _lifeTime = lifeTime;
         _currentLifeTime = lifeTime;
@@ -17,13 +17,13 @@ public class BulletController : Controller
 
     protected override void UpdateLogic(float deltaTime)
     {
-        if (_bulletEntity.Logic.IsActive == false || _bulletEntity.Transform == null)
+        if (_bullet == null || _bullet.IsActive == false)
         {
             DestroyBullet();
             return;
         }
 
-        _bulletEntity.Logic.Update(deltaTime, _bulletEntity.Transform);
+        _bullet.Move(deltaTime);
 
         _currentLifeTime -= deltaTime;
         if (_currentLifeTime <= 0)
@@ -34,12 +34,11 @@ public class BulletController : Controller
 
     private void DestroyBullet()
     {
-        _bulletEntity.Logic.Deactivate();
         _updateService.Remove(this);
         
-        if (_bulletEntity.Transform != null)
+        if (_bullet != null)
         {
-            Object.Destroy(_bulletEntity.Transform.gameObject);
+            Object.Destroy(_bullet.gameObject);
         }
     }
 }

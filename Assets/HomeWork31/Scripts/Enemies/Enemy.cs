@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Enemy : IDamageable, IDisposable
+public class Enemy : MonoBehaviour, IDamageable, IDisposable
 {
     public event Action<Enemy> Died;
 
@@ -10,11 +10,13 @@ public class Enemy : IDamageable, IDisposable
 
     public bool IsAlive => _health.IsAlive;
     public Health Health => _health;
+    public int Damage { get; private set; }
 
-    public Enemy(Health health, Mover mover)
+    public void Initialize(Health health, Mover mover, int damage)
     {
         _health = health ?? throw new ArgumentNullException(nameof(health));
         _mover = mover ?? throw new ArgumentNullException(nameof(mover));
+        Damage = damage;
 
         _health.Died += OnDied;
     }
@@ -24,7 +26,7 @@ public class Enemy : IDamageable, IDisposable
         _health.TakeDamage(damage);
     }
 
-    public void Move(Transform transform, Vector3 direction, float deltaTime)
+    public void Move(Vector3 direction, float deltaTime)
     {
         if (IsAlive == false) return;
         _mover.Move(transform, direction, deltaTime);
@@ -33,6 +35,14 @@ public class Enemy : IDamageable, IDisposable
     public void Dispose()
     {
         _health.Died -= OnDied;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Bullet bullet))
+        {
+            TakeDamage(bullet.Damage);
+        }
     }
 
     private void OnDied()
