@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7044546045814283364}
   - component: {fileID: -230587917388082795}
   - component: {fileID: 9069352464724779665}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeroPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}

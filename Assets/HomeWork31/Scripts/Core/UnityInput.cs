@@ -5,6 +5,7 @@ public class UnityInput : IInput
     private const int LeftMouseButton = 0;
     private const string HorizontalAxis = "Horizontal";
     private const string VerticalAxis = "Vertical";
+    private const KeyCode RestartKey = KeyCode.R;
 
     public Vector3 GetMoveDirection()
     {
@@ -16,5 +17,10 @@ public class UnityInput : IInput
     public bool IsShootPressed()
     {
         return Input.GetMouseButtonDown(LeftMouseButton) || Input.GetKeyDown(KeyCode.Space);
+    }
+
+    public bool IsRestartPressed()
+    {
+        return Input.GetKeyDown(RestartKey);
     }
 }

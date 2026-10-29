@@ -1,11 +1,8 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Bootstrap : MonoBehaviour
 {
-    private const KeyCode RestartKey = KeyCode.R;
-
     [Header("Configs")]
     [SerializeField] private LevelConfig _levelConfiguration;
     [SerializeField] private HeroConfig _heroConfiguration;
@@ -25,7 +22,7 @@ public class Bootstrap : MonoBehaviour
     private EnemyFactory _enemyFactory;
     private BulletsFactory _bulletFactory;
     private EnemiesSpawner _enemiesSpawner;
-    private GameMode _gameMode;
+    private GameplayController _gameplayController;
     private ReactiveList<Enemy> _enemiesList;
     private Hero _hero;
 
@@ -44,12 +41,7 @@ public class Bootstrap : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(RestartKey))
-        {
-            RestartGame();
-        }
-
-        _updateService?.Update(Time.deltaTime);
+        _gameplayController?.Update(Time.deltaTime);
     }
 
     private void OnDestroy()
@@ -57,12 +49,7 @@ public class Bootstrap : MonoBehaviour
         if (_enemiesSpawner != null)
             _enemiesSpawner.Spawned -= OnEnemySpawned;
 
-        if (_gameMode != null)
-        {
-            _gameMode.Win -= OnGameWin;
-            _gameMode.Defeat -= OnGameDefeat;
-        }
-
+        _gameplayController?.Disable();
         _hero?.Dispose();
         _updateService?.Clear();
     }
@@ -83,11 +70,10 @@ public class Bootstrap : MonoBehaviour
         IGameCondition winCondition = conditionsFactory.CreateWinCondition(_levelConfiguration, _enemiesList);
         IGameCondition loseCondition = conditionsFactory.CreateLoseCondition(_levelConfiguration, _hero, _enemiesList);
 
-        _gameMode = new GameMode(winCondition, loseCondition);
-        _gameMode.Win += OnGameWin;
-        _gameMode.Defeat += OnGameDefeat;
+        GameMode gameMode = new GameMode(winCondition, loseCondition);
         
-        _updateService.Add(_gameMode);
+        _gameplayController = new GameplayController(_updateService, input, gameMode);
+        _gameplayController.Enable();
     }
 
     private void OnEnemySpawned(Enemy enemy)
@@ -104,24 +90,6 @@ public class Bootstrap : MonoBehaviour
     {
         enemy.Died -= OnEnemyDied;
         _enemiesList.Remove(enemy); 
-    }
-
-    private void OnGameWin()
-    {
-        Debug.Log("ПОБЕДА!");
-        Time.timeScale = 0f;
-    }
-
-    private void OnGameDefeat()
-    {
-        Debug.Log("ПОРАЖЕНИЕ!");
-        Time.timeScale = 0f;
-    }
-
-    private void RestartGame()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void ValidateDependencies()

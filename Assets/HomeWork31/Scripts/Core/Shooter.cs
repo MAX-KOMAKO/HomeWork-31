@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Shooter : IShooter
+public class Shooter
 {
     private const float MinDirectionSqrMagnitude = 0.01f;
 

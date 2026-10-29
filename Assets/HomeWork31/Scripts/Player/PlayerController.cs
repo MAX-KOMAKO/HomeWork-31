@@ -3,7 +3,6 @@ using UnityEngine;
 public class PlayerController : Controller
 {
     private const float MinDirectionSqrMagnitude = 0.01f;
-    private const float SpawnOffset = 0.7f;
 
     private Hero _hero;
     private IInput _inputProvider;
@@ -44,10 +43,8 @@ public class PlayerController : Controller
 
     private void OnShoot(Vector3 position, Vector3 direction)
     {
-        Vector3 spawnPosition = position + direction * SpawnOffset;
-        
         Bullet bullet = _bulletFactory.CreateBullet(
-            spawnPosition, 
+            position, 
             direction, 
             _heroConfiguration.BulletSpeed, 
             _heroConfiguration.BulletDamage);

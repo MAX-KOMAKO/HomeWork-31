@@ -36,9 +36,5 @@ public class Bullet : MonoBehaviour
             enemy.TakeDamage(Damage);
             Deactivate();
         }
-        else if (other.TryGetComponent(out Hero _) == false)
-        {
-            Deactivate();
-        }
     }
 }

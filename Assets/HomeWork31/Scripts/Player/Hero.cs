@@ -1,18 +1,18 @@
 using System;
 using UnityEngine;
 
-public class Hero : MonoBehaviour, IDamageable, IDisposable
+public class Hero : MonoBehaviour, IDamageable, IShooter, IDisposable
 {
     public event Action<Hero> Died;
 
     private Health _health;
     private Mover _mover;
-    private IShooter _shooter;
+    private Shooter _shooter;
 
     public bool IsAlive => _health.IsAlive;
     public Health Health => _health;
 
-    public void Initialize(Health health, Mover mover, IShooter shooter)
+    public void Initialize(Health health, Mover mover, Shooter shooter)
     {
         _health = health ?? throw new ArgumentNullException(nameof(health));
         _mover = mover ?? throw new ArgumentNullException(nameof(mover));
@@ -32,10 +32,10 @@ public class Hero : MonoBehaviour, IDamageable, IDisposable
         _mover.Move(transform, direction, deltaTime);
     }
 
-    public void Shoot(Vector3 aimDirection, Action<Vector3, Vector3> onShoot)
+    public void Shoot(Vector3 direction, Action<Vector3, Vector3> onShoot)
     {
         if (IsAlive == false) return;
-        _shooter.Shoot(transform.position, aimDirection, onShoot);
+        _shooter.Shoot(transform.position, direction, onShoot);
     }
 
     public void Dispose()
